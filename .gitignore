@@ -1,0 +1,12 @@
+# Node / frontend
+node_modules/
+dist/
+.env
+
+# backend
+cityquest-backend/node_modules/
+cityquest-backend/.env
+
+# frontend
+cityquest-frontend/node_modules/
+cityquest-frontend/.env
