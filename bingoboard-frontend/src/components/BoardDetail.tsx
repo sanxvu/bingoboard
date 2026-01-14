@@ -1,63 +1,124 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link, useParams } from "react-router-dom";
 
-interface Task {
-    id: string;
-    description: string;
-    completed: boolean;
-}
+type Board = {
+  id: string;
+  title: string;
+  created_at: string;
+};
 
-interface BoardDetailProps {
-    boardId: string;
-    onBack: () => void;
-}
+type Task = {
+  id: string;
+  description: string;
+  completed: boolean;
+  position: number;
+};
 
-export default function BoardDetail({boardId, onBack}:BoardDetailProps) {
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [newTask, setNewTask] = useState("");
+export default function BoardDetail() {
+  const { id } = useParams();
+  const [board, setBoard] = useState<Board | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-    const fetchTasks = async () => {
-        const res = await axios.get(`https://localhost:4000/boards/${boardId}/tasks`);
-        setTasks(res.data);
+  const gridSize = 9;
+  const tasksByPosition = Array(gridSize).fill(null);
+  tasks.forEach((task) => {
+    tasksByPosition[task.position] = task;
+  });
+
+  const fetchBoard = async () => {
+    try {
+      const res = await axios.get(`http://localhost:4000/boards/${id}`);
+      setBoard(res.data);
+    } catch (err) {
+      console.error("Error fetching board", err);
     }
+  };
 
-    const addTask = async () => {
-        if (!newTask) return;
-        await axios.post(`http://localhost:4000/boards/${boardId}/tasks`, {description: newTask });
-        setNewTask("");
-        fetchTasks();
-    };
+  const fetchTasks = async () => {
+    const res = await axios.get(`http://localhost:4000/boards/${id}/tasks`);
+    setTasks(res.data);
+  };
 
-    const toggleComplete = async (taskId: string, completed: boolean) => {
-        await axios.patch(`https://localhost:4000/tasks/${taskId}`, {completed: !completed});
-        fetchTasks();
+  const addTask = async (position: number) => {
+    const description = prompt("Task name?");
+    if (!description) return;
+
+    try {
+      const res = await axios.post(`http://localhost:4000/boards/${id}/tasks`, {
+        description,
+        position,
+      });
+      console.log("Task created:", res.data);
+      setTasks((prev) => [...prev, res.data]);
+    } catch (err: any) {
+      console.error("Error creating task:", err.response?.data || err.message);
     }
+  };
 
-    useEffect(()=> {fetchTasks();}, [boardId]);
-    return (
-        <div>
-            <button onClick={onBack}>Back to Boards</button>
-            <h3>Tasks</h3>
+  const toggleTask = async (taskId: any) => {
+    try {
+      const res = await axios.patch(`http://localhost:4000/tasks/${taskId}`, {
+        completed: !taskId.completed,
+      });
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? res.data : t)));
+    } catch (err) {
+      console.error("Error toggling task", err);
+    }
+  };
 
-            <input
-                placeholder="New task"
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-            />
-            <button onClick={addTask}>Add Task</button>
+  useEffect(() => {
+    if (!id) return;
+    fetchBoard();
+    fetchTasks();
+  }, [id]);
 
-            <ul>
-                {tasks.map((task) => (
-                    <li key={task.id}>
-                        <input
-                        type="checkbox"
-                        checked={task.completed}
-                        onChange={() => toggleComplete(task.id, task.completed)}
-                        />
-                        {task.description}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+  useEffect(() => {
+    fetchTasks();
+  }, [tasks])
+
+  if (!board) return <p>Loading board...</p>;
+
+  return (
+    <div>
+      <Link to={"/"} relative="path">
+        &larr; <span>Back to Boards</span>
+      </Link>
+
+      <h3>{board.title}</h3>
+      <hr />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "12px",
+          maxWidth: "400px",
+        }}
+      >
+        {tasksByPosition.map((task, index) => (
+          <div
+            key={index}
+            onClick={() => {
+              if (task) toggleTask(task);
+              else addTask(index);
+            }}
+            style={{
+              border: "2px solid black",
+              width: "100px",
+              height: "100px",
+              cursor: "pointer",
+              background: task?.completed ? "#c8f7c5" : "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "8px",
+            }}
+          >
+            {task ? task.description : "+"}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

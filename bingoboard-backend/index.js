@@ -19,6 +19,18 @@ app.get("/boards", async (req, res) => {
   res.json(data);
 });
 
+// Get one board
+app.get("/boards/:id", async (req, res) => {
+  const { id } = req.params;
+  const { data, error } = await supabase
+    .from("boards")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error) return res.status(500).json({ error });
+  res.json(data);
+});
+
 // Create a board
 app.post("/boards", async (req, res) => {
   const { title, owner_id } = req.body;
@@ -32,6 +44,8 @@ app.post("/boards", async (req, res) => {
 
 // Get tasks for a board
 app.get("/boards/:id/tasks", async (req, res) => {
+  console.log("GET TASKS FOR BOARD", req.params.id);
+
   const { id } = req.params;
   const { data, error } = await supabase
     .from("tasks")
@@ -43,25 +57,28 @@ app.get("/boards/:id/tasks", async (req, res) => {
 
 // Add task to board
 app.post("/boards/:id/tasks", async (req, res) => {
+  console.log("ADD TASK TO BOARD", req.params.id);
   const { id } = req.params;
-  const { description } = req.body;
+  const { description, position } = req.body;
   const { data, error } = await supabase
     .from("tasks")
-    .insert([{ board_id: id, description }]);
+    .insert([{ board_id: id, description, position }]);
   if (error) return res.status(500).json({ error });
   res.json(data[0]);
 });
 
 // Mark task as completed by a user (MVP: simple boolean for now)
-app.patch("/tasks/:id/complete", async (req, res) => {
+app.patch("/tasks/:id", async (req, res) => {
   const { id } = req.params;
   const { completed } = req.body; // true/false
   const { data, error } = await supabase
     .from("tasks")
     .update({ completed })
-    .eq("id", id);
+    .eq("id", id)
+    .select()
+    .single();
   if (error) return res.status(500).json({ error });
-  res.json(data[0]);
+  res.json(data);
 });
 
 app.listen(4000, () => console.log("Backend running on http://localhost:4000"));

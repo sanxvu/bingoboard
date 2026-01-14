@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import BoardDetail from "./BoardDetail";
+import { useNavigate } from "react-router-dom";
 
 interface Board {
   id: string;
@@ -10,7 +10,11 @@ interface Board {
 export default function BoardList() {
   const [boards, setBoards] = useState<Board[]>([]);
   const [newTitle, setNewTitle] = useState("");
-  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+  const openBoard = (boardId: string) => {
+    navigate(`/boards/${boardId}`);
+  };
 
   const fetchBoards = async () => {
     const res = await axios.get("http://localhost:4000/boards");
@@ -35,15 +39,6 @@ export default function BoardList() {
     fetchBoards();
   }, []);
 
-  if (selectedBoardId) {
-    return (
-      <BoardDetail
-        boardId={selectedBoardId}
-        onBack={() => setSelectedBoardId(null)}
-      />
-    );
-  }
-
   return (
     <>
       <div>
@@ -56,7 +51,11 @@ export default function BoardList() {
         <button onClick={createBoard}>Create Board</button>
         <ul>
           {boards.map((board) => (
-            <li key={board.id}>{board.title}</li>
+            <li key={board.id}>
+              <button onClick={() => openBoard(board.id)}>
+                {board.title}
+              </button>
+            </li>
           ))}
         </ul>
       </div>
