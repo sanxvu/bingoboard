@@ -67,7 +67,7 @@ app.post("/boards/:id/tasks", async (req, res) => {
   res.json(data[0]);
 });
 
-// Mark task as completed by a user (MVP: simple boolean for now)
+// Mark task as completed by a user
 app.patch("/tasks/:id", async (req, res) => {
   const { id } = req.params;
   const { completed } = req.body; // true/false

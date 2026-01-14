@@ -19,6 +19,7 @@ export default function BoardDetail() {
   const { id } = useParams();
   const [board, setBoard] = useState<Board | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [blackout, setBlackout] = useState(false);
 
   const gridSize = 9;
   const tasksByPosition = Array(gridSize).fill(null);
@@ -56,15 +57,21 @@ export default function BoardDetail() {
     }
   };
 
-  const toggleTask = async (taskId: any) => {
+  const toggleTask = async (task: Task) => {
     try {
-      const res = await axios.patch(`http://localhost:4000/tasks/${taskId}`, {
-        completed: !taskId.completed,
+      const res = await axios.patch(`http://localhost:4000/tasks/${task.id}`, {
+        completed: !task.completed,
       });
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? res.data : t)));
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? res.data : t)));
     } catch (err) {
       console.error("Error toggling task", err);
     }
+  };
+
+  const checkBlackout = (tasks: Task[]) => {
+    // tasksByPosition may have empty cells, so filter out nulls
+    const realTasks = tasks.filter(Boolean);
+    return realTasks.every((t) => t.completed);
   };
 
   useEffect(() => {
@@ -75,7 +82,11 @@ export default function BoardDetail() {
 
   useEffect(() => {
     fetchTasks();
-  }, [tasks])
+  }, [tasks]);
+
+  useEffect(() => {
+    setBlackout(checkBlackout(tasksByPosition));
+  }, [tasksByPosition]);
 
   if (!board) return <p>Loading board...</p>;
 
@@ -86,7 +97,6 @@ export default function BoardDetail() {
       </Link>
 
       <h3>{board.title}</h3>
-      <hr />
       <div
         style={{
           display: "grid",
@@ -119,6 +129,7 @@ export default function BoardDetail() {
           </div>
         ))}
       </div>
+      {blackout && <p> 🎉 BLACKOUT BINGO! 🎉</p>}
     </div>
   );
 }
