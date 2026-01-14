@@ -4,9 +4,9 @@ dist/
 .env
 
 # backend
-cityquest-backend/node_modules/
-cityquest-backend/.env
+bingoboard-backend/node_modules/
+bingoboard-backend/.env
 
 # frontend
-cityquest-frontend/node_modules/
-cityquest-frontend/.env
+bingoboard-frontend/node_modules/
+bingoboard-frontend/.env
