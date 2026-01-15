@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
+import "./BoardDetail.css";
 
 type Board = {
   id: string;
@@ -68,6 +69,20 @@ export default function BoardDetail() {
     }
   };
 
+  const editTask = async (task: Task) => {
+    console.log("edit");
+    const newDescription = prompt("Edit task", task.description);
+    if (!newDescription || newDescription === task.description) return;
+    try {
+      const res = await axios.patch(`http://localhost:4000/tasks/${task.id}`, {
+        description: newDescription,
+      });
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? res.data : t)));
+    } catch (err) {
+      console.error("Error editing task", err);
+    }
+  };
+
   const checkBlackout = (tasks: Task[]) => {
     // tasksByPosition may have empty cells, so filter out nulls
     const realTasks = tasks.filter(Boolean);
@@ -108,24 +123,29 @@ export default function BoardDetail() {
         {tasksByPosition.map((task, index) => (
           <div
             key={index}
-            onClick={() => {
-              if (task) toggleTask(task);
-              else addTask(index);
-            }}
+            className="task-box"
             style={{
-              border: "2px solid black",
-              width: "100px",
-              height: "100px",
-              cursor: "pointer",
               background: task?.completed ? "#c8f7c5" : "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              padding: "8px",
             }}
           >
+            <button
+              onClick={() => {
+                task && editTask(task);
+              }}
+              className="task-box-edit-button"
+            >
+              edit
+            </button>
             {task ? task.description : "+"}
+            <button
+              onClick={() => {
+                if (task) toggleTask(task);
+                else addTask(index);
+              }}
+              className="task-box-done-button"
+            >
+              ✔️
+            </button>
           </div>
         ))}
       </div>

@@ -67,13 +67,15 @@ app.post("/boards/:id/tasks", async (req, res) => {
   res.json(data[0]);
 });
 
-// Mark task as completed by a user
+// Update task - description, completed
 app.patch("/tasks/:id", async (req, res) => {
   const { id } = req.params;
-  const { completed } = req.body; // true/false
+  const updates = req.body;
+  console.log("PATCH /tasks", id, updates);
+
   const { data, error } = await supabase
     .from("tasks")
-    .update({ completed })
+    .update(updates)
     .eq("id", id)
     .select()
     .single();
