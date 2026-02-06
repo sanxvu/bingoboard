@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link, useParams } from "react-router-dom";
-import "./BoardDetail.css";
-
-type Board = {
-  id: string;
-  title: string;
-  created_at: string;
-};
+import "./BingoBoard.css";
+import BingoSquare from "./BingoSquare";
+import { tokens } from "../../styles/tokens";
+import { colors } from "../../styles/colors";
 
 type Task = {
   id: string;
@@ -16,9 +12,19 @@ type Task = {
   position: number;
 };
 
-export default function BoardDetail() {
-  const { id } = useParams();
-  const [board, setBoard] = useState<Board | null>(null);
+interface BoardProps {
+  boardId: string;
+}
+
+interface BoardData {
+  id: string;
+  title: string;
+  owner_id: string;
+  created_at: string;
+}
+
+export default function Board({ boardId }: BoardProps) {
+  const [board, setBoard] = useState<BoardData | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [blackout, setBlackout] = useState(false);
 
@@ -30,7 +36,7 @@ export default function BoardDetail() {
 
   const fetchBoard = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/boards/${id}`);
+      const res = await axios.get(`http://localhost:4000/boards/${boardId}`);
       setBoard(res.data);
     } catch (err) {
       console.error("Error fetching board", err);
@@ -38,7 +44,9 @@ export default function BoardDetail() {
   };
 
   const fetchTasks = async () => {
-    const res = await axios.get(`http://localhost:4000/boards/${id}/tasks`);
+    const res = await axios.get(
+      `http://localhost:4000/boards/${boardId}/tasks`,
+    );
     setTasks(res.data);
   };
 
@@ -47,10 +55,13 @@ export default function BoardDetail() {
     if (!description) return;
 
     try {
-      const res = await axios.post(`http://localhost:4000/boards/${id}/tasks`, {
-        description,
-        position,
-      });
+      const res = await axios.post(
+        `http://localhost:4000/boards/${boardId}/tasks`,
+        {
+          description,
+          position,
+        },
+      );
       console.log("Task created:", res.data);
       setTasks((prev) => [...prev, res.data]);
     } catch (err: any) {
@@ -83,17 +94,19 @@ export default function BoardDetail() {
     }
   };
 
-  const checkBlackout = (tasks: Task[]) => {
-    // tasksByPosition may have empty cells, so filter out nulls
-    const realTasks = tasks.filter(Boolean);
-    return realTasks.every((t) => t.completed);
+  const checkBlackout = (positions: (Task | null)[]) => {
+    // All cells must be filled and every one completed
+    return (
+      positions.length === gridSize &&
+      positions.every((cell) => cell !== null && cell.completed)
+    );
   };
 
   useEffect(() => {
-    if (!id) return;
+    if (!boardId) return;
     fetchBoard();
     fetchTasks();
-  }, [id]);
+  }, [boardId]);
 
   useEffect(() => {
     fetchTasks();
@@ -101,55 +114,43 @@ export default function BoardDetail() {
 
   useEffect(() => {
     setBlackout(checkBlackout(tasksByPosition));
-  }, [tasksByPosition]);
+  }, [tasks, gridSize]);
 
   if (!board) return <p>Loading board...</p>;
 
   return (
-    <div>
-      <Link to={"/"} relative="path">
-        &larr; <span>Back to Boards</span>
-      </Link>
-
-      <h3>{board.title}</h3>
+    <div className="board-container">
+      <h2>{board.title}</h2>
+      <p>Click a cell to mark complete • Double-click to edit</p>
       <div
         style={{
-          display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "12px",
-          maxWidth: "400px",
+          backgroundColor: colors.board.bg,
+          borderRadius: tokens.radius.lg,
+          padding: tokens.spacing.lg,
+          display: "grid",
+          gap: tokens.spacing.md,
         }}
       >
         {tasksByPosition.map((task, index) => (
-          <div
+          <BingoSquare
             key={index}
-            className="task-box"
-            style={{
-              background: task?.completed ? "#c8f7c5" : "#fff",
-            }}
-          >
-            <button
-              onClick={() => {
-                task && editTask(task);
-              }}
-              className="task-box-edit-button"
-            >
-              edit
-            </button>
-            {task ? task.description : "+"}
-            <button
-              onClick={() => {
-                if (task) toggleTask(task);
-                else addTask(index);
-              }}
-              className="task-box-done-button"
-            >
-              ✔️
-            </button>
-          </div>
+            task={task}
+            index={index}
+            onToggleTask={toggleTask}
+            onAddTask={addTask}
+            onEditTask={editTask}
+          />
         ))}
       </div>
-      {blackout && <p> 🎉 BLACKOUT BINGO! 🎉</p>}
+      {blackout && (
+        <div className="blackout-banner">
+          <h3 className="blackout-title">Blackout! 🎉</h3>
+          <p className="blackout-message">
+            You completed all your goals. Congratulations!
+          </p>
+        </div>
+      )}
     </div>
   );
 }

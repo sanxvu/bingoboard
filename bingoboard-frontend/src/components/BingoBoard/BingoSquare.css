@@ -1,4 +1,4 @@
-.task-box {
+.bingo-square {
     border: 2px solid black;
     width: 100px;
     height: 100px;
@@ -9,12 +9,4 @@
     justify-content: center;
     text-align: center;
     padding: 8px;
-}
-
-.task-box-edit-button {
-    font-size: 10px;
-}
-
-.task-box-done-button {
-    font-size: 10px;
 }

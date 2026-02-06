@@ -1,13 +1,18 @@
-import { Routes, Route } from "react-router-dom";
 import "./App.css";
-import BoardList from "./components/BoardList";
-import BoardDetail from "./components/BoardDetail";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<BoardList />} />
-      <Route path="/boards/:id" element={<BoardDetail />} />
-    </Routes>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
