@@ -16,7 +16,34 @@ export const tokens = {
     slow: "350ms",
   },
   shadow: {
-    soft: "0 2px 8px rgba(0, 0, 0, 0.06)",
-    pressed: "0 1px 4px rgba(0, 0, 0, 0.04)",
+    soft: "0 2px 8px rgba(0,0,0,0.06)", // for squares
+    container: "0 4px 12px rgba(0,0,0,0.08)", // slightly bigger, softer for containers
+  },
+  text: {
+    title: {
+      fontSize: 40,
+      fontWeight: 700,
+      lineHeight: 1.3,
+    },
+    heading: {
+      fontSize: 18,
+      fontWeight: 700,
+      lineHeight: 1.4,
+    },
+    body: {
+      fontSize: 16,
+      fontWeight: 500,
+      lineHeight: 1.4,
+    },
+    secondary: {
+      fontSize: 14,
+      fontWeight: 600,
+      lineHeight: 1.4,
+    },
+    caption: {
+      fontSize: 14,
+      fontWeight: 500,
+      lineHeight: 1.2,
+    },
   },
 };

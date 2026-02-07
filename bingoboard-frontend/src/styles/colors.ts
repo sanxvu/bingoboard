@@ -1,6 +1,12 @@
 export const colors = {
   background: "#FFF9F4",
 
+  text: {
+    primary: "#151d30", 
+    secondary: "#64748b",
+    purple: "#8360f4"
+  },
+
   board: {
     bg: "#f4f7fa",
   },
@@ -29,6 +35,6 @@ export const colors = {
 
   interaction: {
     purple: "#8360f4",
-    purpleBg:  "#f3f6fd"
-  }
+    purpleBg: "#f3f6fd",
+  },
 };

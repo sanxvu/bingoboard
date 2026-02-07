@@ -77,7 +77,8 @@ export default function BingoSquare({
         border,
         borderRadius: tokens.radius.md,
         padding: tokens.spacing.md,
-        minHeight: 80,
+        height: 100,
+        width: 100,
         boxSizing: "border-box",
 
         boxShadow: isEmpty || hovered || pressed ? "none" : tokens.shadow.soft,

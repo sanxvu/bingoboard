@@ -28,7 +28,7 @@ export default function Board({ boardId }: BoardProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [blackout, setBlackout] = useState(false);
 
-  const gridSize = 9;
+  const gridSize = 25;
   const tasksByPosition = Array(gridSize).fill(null);
   tasks.forEach((task) => {
     tasksByPosition[task.position] = task;
@@ -120,16 +120,31 @@ export default function Board({ boardId }: BoardProps) {
 
   return (
     <div className="board-container">
-      <h2>{board.title}</h2>
-      <p>Click a cell to mark complete • Double-click to edit</p>
+      <h2
+        style={{
+          ...tokens.text.heading,
+          color: colors.text.primary,
+        }}
+      >
+        {board.title}
+      </h2>
+      <p
+        style={{
+          ...tokens.text.caption,
+          color: colors.text.secondary,
+        }}
+      >
+        Click a cell to mark complete • Double-click to edit
+      </p>
       <div
         style={{
-          gridTemplateColumns: "repeat(3, 1fr)",
+          gridTemplateColumns: "repeat(5, 1fr)",
           backgroundColor: colors.board.bg,
           borderRadius: tokens.radius.lg,
           padding: tokens.spacing.lg,
           display: "grid",
           gap: tokens.spacing.md,
+          boxShadow: tokens.shadow.container,
         }}
       >
         {tasksByPosition.map((task, index) => (
