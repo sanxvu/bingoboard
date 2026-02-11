@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./BingoBoard.css";
 import BingoSquare from "./BingoSquare";
+import BoardKey from "./BoardKey";
 import { tokens } from "../../styles/tokens";
 import { colors } from "../../styles/colors";
 
@@ -106,11 +107,7 @@ export default function Board({ boardId }: BoardProps) {
     if (!boardId) return;
     fetchBoard();
     fetchTasks();
-  }, [boardId]);
-
-  useEffect(() => {
-    fetchTasks();
-  }, [tasks]);
+  }, [boardId, tasks]);
 
   useEffect(() => {
     setBlackout(checkBlackout(tasksByPosition));
@@ -119,11 +116,14 @@ export default function Board({ boardId }: BoardProps) {
   if (!board) return <p>Loading board...</p>;
 
   return (
-    <div className="board-container">
+    <div>
       <h2
         style={{
           ...tokens.text.heading,
           color: colors.text.primary,
+          textAlign: "left",
+          marginTop: tokens.spacing.sm,
+          marginBottom: "0",
         }}
       >
         {board.title}
@@ -131,7 +131,10 @@ export default function Board({ boardId }: BoardProps) {
       <p
         style={{
           ...tokens.text.caption,
+          marginTop: tokens.spacing.sm,
+          marginBottom: tokens.spacing.lg,
           color: colors.text.secondary,
+          textAlign: "left",
         }}
       >
         Click a cell to mark complete • Double-click to edit
@@ -158,6 +161,11 @@ export default function Board({ boardId }: BoardProps) {
           />
         ))}
       </div>
+
+      {/* --- Legend --- */}
+      <BoardKey />
+
+      {/* --- Blackout banner --- */}
       {blackout && (
         <div className="blackout-banner">
           <h3 className="blackout-title">Blackout! 🎉</h3>

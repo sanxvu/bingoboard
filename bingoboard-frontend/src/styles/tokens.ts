@@ -26,7 +26,7 @@ export const tokens = {
       lineHeight: 1.3,
     },
     heading: {
-      fontSize: 18,
+      fontSize: 24,
       fontWeight: 700,
       lineHeight: 1.4,
     },

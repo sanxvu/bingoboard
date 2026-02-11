@@ -45,7 +45,6 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
         borderRadius: tokens.radius.md,
         backgroundColor: colors.square.idle,
         boxShadow: tokens.shadow.container,
-        marginBottom: tokens.spacing.md,
         width: 300,
       }}
     >
@@ -106,6 +105,7 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
               fontWeight: tokens.text.body.fontWeight,
               lineHeight: tokens.text.body.lineHeight,
               outline: "none",
+              marginBottom: tokens.spacing.sm,
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && newTitle.trim()) {
@@ -124,8 +124,10 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
               color: "#fff",
               borderRadius: tokens.radius.sm,
               cursor: "pointer",
-              fontWeight: 500,
-              fontSize: 12,
+              fontSize: tokens.text.body.fontSize,
+              fontWeight: tokens.text.body.fontWeight,
+              lineHeight: tokens.text.body.lineHeight,
+              marginBottom: tokens.spacing.sm,
             }}
           >
             Create
@@ -134,15 +136,22 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
       )}
 
       {/* --- Board list --- */}
-      <div
-        style={{
-          marginTop: tokens.spacing.md,
-          display: "flex",
-          flexDirection: "column",
-          gap: tokens.spacing.sm,
-        }}
-      >
-        {boards.map((board) => (
+      {boards.length === 0 ? (
+        <div
+          style={{
+            padding: tokens.spacing.md,
+            borderRadius: tokens.radius.sm,
+            textAlign: "center",
+            fontSize: tokens.text.body.fontSize,
+            fontWeight: tokens.text.body.fontWeight,
+            color: colors.text.secondary,
+            fontStyle: "italic",
+          }}
+        >
+          No boards yet
+        </div>
+      ) : (
+        boards.map((board) => (
           <button
             key={board.id}
             onClick={() => onSelectBoard(board.id)}
@@ -161,8 +170,8 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
           >
             {board.title}
           </button>
-        ))}
-      </div>
+        ))
+      )}
     </div>
   );
 }

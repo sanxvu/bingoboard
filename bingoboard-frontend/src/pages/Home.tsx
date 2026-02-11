@@ -1,13 +1,12 @@
 import { useState } from "react";
 import BoardSelector from "../components/BoardSelector/BoardSelector";
-import Board from "../components/BingoBoard/BingoBoard";
+import BingoBoard from "../components/BingoBoard/BingoBoard";
 import "./Home.css";
 import { tokens } from "../styles/tokens";
 import { colors } from "../styles/colors";
 
 export default function Home() {
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
-
   return (
     <div className="home-container">
       <div className="home-header">
@@ -41,9 +40,40 @@ export default function Home() {
 
         <div>
           {selectedBoard ? (
-            <Board boardId={selectedBoard} />
+            <BingoBoard boardId={selectedBoard} />
           ) : (
-            <p>Select a board</p>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+                padding: tokens.spacing.lg,
+                textAlign: "center",
+                color: colors.text.secondary,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: tokens.text.heading.fontSize,
+                  fontWeight: tokens.text.heading.fontWeight,
+                  marginBottom: tokens.spacing.sm,
+                }}
+              >
+                No board selected
+              </span>
+              <span
+                style={{
+                  fontSize: tokens.text.body.fontSize,
+                  fontWeight: tokens.text.body.fontWeight,
+                  maxWidth: 280,
+                  lineHeight: 1.4,
+                }}
+              >
+                Create a new board or select one from the sidebar
+              </span>
+            </div>
           )}
         </div>
       </div>
