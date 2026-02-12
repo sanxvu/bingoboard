@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { tokens } from "../../styles/tokens";
 import { colors } from "../../styles/colors";
+import "../../styles/typography.css";
 
 type Task = {
   id: string;

@@ -54,12 +54,12 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          marginBottom: tokens.spacing.sm,
         }}
       >
         <span
+          className="text-secondary"
           style={{
-            ...tokens.text.secondary,
-            color: colors.text.secondary,
             textTransform: "uppercase",
             letterSpacing: 1,
           }}
@@ -69,9 +69,8 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
 
         <button
           onClick={() => setAddingBoard((prev) => !prev)}
+          className="text-secondary"
           style={{
-            ...tokens.text.secondary,
-            color: colors.text.purple,
             cursor: "pointer",
           }}
         >
@@ -85,10 +84,10 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
           style={{
             display: "flex",
             alignItems: "center",
-            marginTop: tokens.spacing.sm,
             borderRadius: tokens.radius.md,
             backgroundColor: colors.square.idle,
             gap: tokens.spacing.sm,
+            marginBottom: tokens.spacing.sm,
           }}
         >
           <input
@@ -96,16 +95,13 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="Board name..."
+            className="text-body"
             style={{
               flex: 1,
               padding: tokens.spacing.sm,
               borderRadius: tokens.radius.sm,
               border: `1px solid ${colors.square.emptyBorder}`,
-              fontSize: tokens.text.body.fontSize,
-              fontWeight: tokens.text.body.fontWeight,
-              lineHeight: tokens.text.body.lineHeight,
               outline: "none",
-              marginBottom: tokens.spacing.sm,
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && newTitle.trim()) {
@@ -118,16 +114,12 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
             onClick={() => {
               if (newTitle.trim()) createBoard();
             }}
+            className="text-body"
             style={{
-              ...tokens.text.secondary,
               backgroundColor: colors.interaction.purple,
               color: "#fff",
               borderRadius: tokens.radius.sm,
               cursor: "pointer",
-              fontSize: tokens.text.body.fontSize,
-              fontWeight: tokens.text.body.fontWeight,
-              lineHeight: tokens.text.body.lineHeight,
-              marginBottom: tokens.spacing.sm,
             }}
           >
             Create
@@ -138,13 +130,11 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
       {/* --- Board list --- */}
       {boards.length === 0 ? (
         <div
+        className="text-body"
           style={{
             padding: tokens.spacing.md,
             borderRadius: tokens.radius.sm,
             textAlign: "center",
-            fontSize: tokens.text.body.fontSize,
-            fontWeight: tokens.text.body.fontWeight,
-            color: colors.text.secondary,
             fontStyle: "italic",
           }}
         >
@@ -155,6 +145,7 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
           <button
             key={board.id}
             onClick={() => onSelectBoard(board.id)}
+            className="text-body"
             style={{
               padding: tokens.spacing.sm,
               borderRadius: tokens.radius.sm,
@@ -162,9 +153,6 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
               border: "none",
               textAlign: "left",
               cursor: "pointer",
-              fontSize: tokens.text.body.fontSize,
-              fontWeight: tokens.text.body.fontWeight,
-              color: colors.text.primary,
               boxShadow: tokens.shadow.soft,
             }}
           >

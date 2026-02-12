@@ -3,31 +3,15 @@ import BoardSelector from "../components/BoardSelector/BoardSelector";
 import BingoBoard from "../components/BingoBoard/BingoBoard";
 import "./Home.css";
 import { tokens } from "../styles/tokens";
-import { colors } from "../styles/colors";
+import "../styles/typography.css";
 
 export default function Home() {
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
   return (
     <div className="home-container">
       <div className="home-header">
-        <h1
-          style={{
-            fontSize: tokens.text.title.fontSize,
-            fontWeight: tokens.text.title.fontWeight,
-            lineHeight: tokens.text.title.lineHeight,
-            color: colors.text.primary,
-          }}
-        >
-          Goal Bingo
-        </h1>
-        <p
-          style={{
-            fontSize: tokens.text.body.fontSize,
-            fontWeight: tokens.text.body.fontWeight,
-            lineHeight: tokens.text.body.lineHeight,
-            color: colors.text.secondary,
-          }}
-        >
+        <h1 className="text-title">Goal Bingo</h1>
+        <p className="text-body">
           Set 25 goals, complete them to get BINGO! Track your progress and
           celebrate your wins.
         </p>
@@ -51,26 +35,10 @@ export default function Home() {
                 height: "100%",
                 padding: tokens.spacing.lg,
                 textAlign: "center",
-                color: colors.text.secondary,
               }}
             >
-              <span
-                style={{
-                  fontSize: tokens.text.heading.fontSize,
-                  fontWeight: tokens.text.heading.fontWeight,
-                  marginBottom: tokens.spacing.sm,
-                }}
-              >
-                No board selected
-              </span>
-              <span
-                style={{
-                  fontSize: tokens.text.body.fontSize,
-                  fontWeight: tokens.text.body.fontWeight,
-                  maxWidth: 280,
-                  lineHeight: 1.4,
-                }}
-              >
+              <span className="text-body">
+                No board selected. <br />
                 Create a new board or select one from the sidebar
               </span>
             </div>

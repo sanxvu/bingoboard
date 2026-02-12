@@ -5,6 +5,7 @@ import BingoSquare from "./BingoSquare";
 import BoardKey from "./BoardKey";
 import { tokens } from "../../styles/tokens";
 import { colors } from "../../styles/colors";
+import "../../styles/typography.css";
 
 type Task = {
   id: string;
@@ -118,10 +119,8 @@ export default function Board({ boardId }: BoardProps) {
   return (
     <div>
       <h2
+        className="text-heading"
         style={{
-          ...tokens.text.heading,
-          color: colors.text.primary,
-          textAlign: "left",
           marginTop: tokens.spacing.sm,
           marginBottom: "0",
         }}
@@ -129,12 +128,10 @@ export default function Board({ boardId }: BoardProps) {
         {board.title}
       </h2>
       <p
+        className="text-caption"
         style={{
-          ...tokens.text.caption,
           marginTop: tokens.spacing.sm,
           marginBottom: tokens.spacing.lg,
-          color: colors.text.secondary,
-          textAlign: "left",
         }}
       >
         Click a cell to mark complete • Double-click to edit
