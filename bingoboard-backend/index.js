@@ -9,7 +9,7 @@ app.use(express.json());
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
+  process.env.SUPABASE_KEY,
 );
 
 // Get all boards
@@ -60,27 +60,52 @@ app.post("/boards/:id/tasks", async (req, res) => {
   console.log("ADD TASK TO BOARD", req.params.id);
   const { id } = req.params;
   const { description, position } = req.body;
+
   const { data, error } = await supabase
     .from("tasks")
-    .insert([{ board_id: id, description, position }]);
+    .insert([{ board_id: id, description, position }])
+    .select()
+    .single(); // returns one object
+
   if (error) return res.status(500).json({ error });
-  res.json(data[0]);
+
+  res.json(data);
 });
 
 // Update task - description, completed
 app.patch("/tasks/:id", async (req, res) => {
+  console.log("PATCH TASK", req.params.id);
+  console.log("BODY:", req.body);
+
   const { id } = req.params;
-  const updates = req.body;
-  console.log("PATCH /tasks", id, updates);
 
   const { data, error } = await supabase
     .from("tasks")
-    .update(updates)
+    .update(req.body)
     .eq("id", id)
     .select()
     .single();
+
   if (error) return res.status(500).json({ error });
+
+  console.log("UPDATED TASK:", data); 
   res.json(data);
+});
+
+// Delete task
+app.delete("/tasks/:id", async (req, res) => {
+  const { id } = req.params;
+  console.log("DELETE /tasks", id);
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("id", id)
+    .select();
+  if (error) return res.status(500).json({ error });
+  if (!data || data.length === 0)
+    return res.status(404).json({ error: "Task not found" });
+  res.json({ message: "Task deleted successfully", task: data[0] });
 });
 
 app.listen(4000, () => console.log("Backend running on http://localhost:4000"));

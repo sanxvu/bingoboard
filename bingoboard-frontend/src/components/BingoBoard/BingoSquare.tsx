@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { tokens } from "../../styles/tokens";
 import { colors } from "../../styles/colors";
 import "../../styles/typography.css";
@@ -14,7 +14,7 @@ interface BingoSquareProps {
   task: Task | null;
   index: number;
   onToggleTask: (task: Task) => void;
-  onAddTask: (index: number) => void;
+  onCreateTask: (index: number) => void;
   onEditTask: (task: Task) => void;
 }
 
@@ -22,7 +22,7 @@ export default function BingoSquare({
   task,
   index,
   onToggleTask,
-  onAddTask,
+  onCreateTask,
   onEditTask,
 }: BingoSquareProps) {
   const [pressed, setPressed] = useState(false);
@@ -30,6 +30,9 @@ export default function BingoSquare({
 
   const isEmpty = !task;
   const isCompleted = task?.completed ?? false;
+
+  // handle single vs double click ux
+  const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // background logic
   const backgroundColor = isCompleted
@@ -71,8 +74,29 @@ export default function BingoSquare({
       }}
       onMouseDown={() => setPressed(true)}
       onMouseUp={() => setPressed(false)}
-      onClick={() => (task ? onToggleTask(task) : onAddTask(index))}
-      onDoubleClick={() => task && onEditTask(task)}
+      onClick={() => {
+        if (!task) {
+          onCreateTask(index);
+          return;
+        }
+
+        if (clickTimeout.current) return;
+
+        clickTimeout.current = setTimeout(() => {
+          onToggleTask(task);
+          clickTimeout.current = null;
+        }, 200);
+      }}
+      onDoubleClick={() => {
+        if (!task) return;
+
+        if (clickTimeout.current) {
+          clearTimeout(clickTimeout.current);
+          clickTimeout.current = null;
+        }
+
+        onEditTask(task);
+      }}
       style={{
         backgroundColor,
         border,

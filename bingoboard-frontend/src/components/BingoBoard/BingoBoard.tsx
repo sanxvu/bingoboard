@@ -6,6 +6,7 @@ import BoardKey from "./BoardKey";
 import { tokens } from "../../styles/tokens";
 import { colors } from "../../styles/colors";
 import "../../styles/typography.css";
+import EditTaskModal from "./EditTaskModal";
 
 type Task = {
   id: string;
@@ -28,7 +29,10 @@ interface BoardData {
 export default function Board({ boardId }: BoardProps) {
   const [board, setBoard] = useState<BoardData | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [blackout, setBlackout] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"edit" | "create">("edit");
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
 
   const gridSize = 25;
   const tasksByPosition = Array(gridSize).fill(null);
@@ -52,25 +56,58 @@ export default function Board({ boardId }: BoardProps) {
     setTasks(res.data);
   };
 
-  const addTask = async (position: number) => {
-    const description = prompt("Task name?");
-    if (!description) return;
+  // Add new goal
+  const createTask = (position: number) => {
+    setSelectedTask(null);
+    setSelectedPosition(position);
+    setModalMode("create");
+    setModalOpen(true);
+  };
+
+  // Edit goal
+  const editTask = (task: Task) => {
+    setSelectedTask(task);
+    setSelectedPosition(task.position);
+    setModalMode("edit");
+    setModalOpen(true);
+  };
+
+  // Handle save for create and edit task
+  const handleSave = async (description: string) => {
+    if (!description.trim() || selectedPosition === null) return;
 
     try {
-      const res = await axios.post(
-        `http://localhost:4000/boards/${boardId}/tasks`,
-        {
-          description,
-          position,
-        },
-      );
-      console.log("Task created:", res.data);
-      setTasks((prev) => [...prev, res.data]);
-    } catch (err: any) {
-      console.error("Error creating task:", err.response?.data || err.message);
+      if (modalMode === "edit" && selectedTask) {
+        const res = await axios.patch(
+          `http://localhost:4000/tasks/${selectedTask.id}`,
+          {
+            description,
+          },
+        );
+        console.log("CREATE RESPONSE:", res.data);
+        setTasks((prev) =>
+          prev.map((t) => (t.id === selectedTask.id ? res.data : t)),
+        );
+      } else if (modalMode === "create") {
+        const res = await axios.post(
+          `http://localhost:4000/boards/${boardId}/tasks`,
+          {
+            description,
+            position: selectedPosition,
+          },
+        );
+        console.log("CREATE RESPONSE:", res.data);
+        setTasks((prev) => [...prev, res.data]);
+      }
+      setSelectedTask(null);
+      setSelectedPosition(null);
+      setModalOpen(false);
+    } catch (err) {
+      console.error("Error saving task:", err);
     }
   };
 
+  // Mark task as completed
   const toggleTask = async (task: Task) => {
     try {
       const res = await axios.patch(`http://localhost:4000/tasks/${task.id}`, {
@@ -82,37 +119,21 @@ export default function Board({ boardId }: BoardProps) {
     }
   };
 
-  const editTask = async (task: Task) => {
-    console.log("edit");
-    const newDescription = prompt("Edit task", task.description);
-    if (!newDescription || newDescription === task.description) return;
+  // Delete task
+  const deleteTask = async (id: string) => {
     try {
-      const res = await axios.patch(`http://localhost:4000/tasks/${task.id}`, {
-        description: newDescription,
-      });
-      setTasks((prev) => prev.map((t) => (t.id === task.id ? res.data : t)));
+      await axios.delete(`http://localhost:4000/tasks/${id}`);
+      setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
-      console.error("Error editing task", err);
+      console.error("Error deleting task:", err);
     }
-  };
-
-  const checkBlackout = (positions: (Task | null)[]) => {
-    // All cells must be filled and every one completed
-    return (
-      positions.length === gridSize &&
-      positions.every((cell) => cell !== null && cell.completed)
-    );
   };
 
   useEffect(() => {
     if (!boardId) return;
     fetchBoard();
     fetchTasks();
-  }, [boardId, tasks]);
-
-  useEffect(() => {
-    setBlackout(checkBlackout(tasksByPosition));
-  }, [tasks, gridSize]);
+  }, [boardId]);
 
   if (!board) return <p>Loading board...</p>;
 
@@ -153,7 +174,7 @@ export default function Board({ boardId }: BoardProps) {
             task={task}
             index={index}
             onToggleTask={toggleTask}
-            onAddTask={addTask}
+            onCreateTask={createTask}
             onEditTask={editTask}
           />
         ))}
@@ -162,15 +183,14 @@ export default function Board({ boardId }: BoardProps) {
       {/* --- Legend --- */}
       <BoardKey />
 
-      {/* --- Blackout banner --- */}
-      {blackout && (
-        <div className="blackout-banner">
-          <h3 className="blackout-title">Blackout! 🎉</h3>
-          <p className="blackout-message">
-            You completed all your goals. Congratulations!
-          </p>
-        </div>
-      )}
+      <EditTaskModal
+        isOpen={modalOpen}
+        mode={modalMode}
+        initialValue={selectedTask?.description}
+        onSave={handleSave}
+        onClose={() => setModalOpen(false)}
+        onDelete={deleteTask}
+      />
     </div>
   );
 }

@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import BoardSelector from "../components/BoardSelector/BoardSelector";
 import BingoBoard from "../components/BingoBoard/BingoBoard";
-import "./Home.css";
 import { tokens } from "../styles/tokens";
+import "./Home.css";
 import "../styles/typography.css";
 
 export default function Home() {
-  const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedBoardId = searchParams.get("board");
+
+  const handleSelectBoard = (boardId: string) => {
+    setSearchParams({ board: boardId });
+  };
+
   return (
     <div className="home-container">
       <div className="home-header">
@@ -18,13 +24,13 @@ export default function Home() {
       </div>
       <div className="boards-container">
         <BoardSelector
-          selectedBoard={selectedBoard}
-          onSelectBoard={setSelectedBoard}
+          selectedBoard={selectedBoardId}
+          onSelectBoard={handleSelectBoard}
         />
 
         <div>
-          {selectedBoard ? (
-            <BingoBoard boardId={selectedBoard} />
+          {selectedBoardId ? (
+            <BingoBoard boardId={selectedBoardId} />
           ) : (
             <div
               style={{

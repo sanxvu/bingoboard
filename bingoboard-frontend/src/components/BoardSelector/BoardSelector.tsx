@@ -8,25 +8,34 @@ interface BoardSelectorProps {
   onSelectBoard: (id: string) => void;
 }
 
-export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
+export default function BoardSelector({
+  selectedBoard,
+  onSelectBoard,
+}: BoardSelectorProps) {
   const [boards, setBoards] = useState<any[]>([]);
-  const [newTitle, setNewTitle] = useState("");
   const [addingBoard, setAddingBoard] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
 
   const fetchBoards = async () => {
-    const res = await axios.get("http://localhost:4000/boards");
-    setBoards(res.data);
+    try {
+      const res = await axios.get("http://localhost:4000/boards");
+      setBoards(res.data);
+    } catch (err) {
+      console.error("Error fetching boards:", err);
+    }
   };
 
   const createBoard = async () => {
     if (!newTitle) return;
+
     try {
       const res = await axios.post("http://localhost:4000/boards", {
         title: newTitle,
       });
+      setBoards((prev) => [...prev, res.data]);
       setNewTitle("");
       setAddingBoard(false);
-      fetchBoards();
+      onSelectBoard(res.data.id);
     } catch (err: any) {
       console.error("Error creating board:", err.response?.data || err.message);
     }
@@ -54,7 +63,6 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: tokens.spacing.sm,
         }}
       >
         <span
@@ -87,6 +95,7 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
             borderRadius: tokens.radius.md,
             backgroundColor: colors.square.idle,
             gap: tokens.spacing.sm,
+            marginTop: tokens.spacing.sm,
             marginBottom: tokens.spacing.sm,
           }}
         >
@@ -130,7 +139,7 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
       {/* --- Board list --- */}
       {boards.length === 0 ? (
         <div
-        className="text-body"
+          className="text-body"
           style={{
             padding: tokens.spacing.md,
             borderRadius: tokens.radius.sm,
@@ -141,24 +150,32 @@ export default function BoardSelector({ onSelectBoard }: BoardSelectorProps) {
           No boards yet
         </div>
       ) : (
-        boards.map((board) => (
-          <button
-            key={board.id}
-            onClick={() => onSelectBoard(board.id)}
-            className="text-body"
-            style={{
-              padding: tokens.spacing.sm,
-              borderRadius: tokens.radius.sm,
-              backgroundColor: colors.square.emptyBg,
-              border: "none",
-              textAlign: "left",
-              cursor: "pointer",
-              boxShadow: tokens.shadow.soft,
-            }}
-          >
-            {board.title}
-          </button>
-        ))
+        boards.map((board) => {
+          const isSelected = selectedBoard === board.id;
+          return (
+            <button
+              key={board.id}
+              onClick={() => onSelectBoard(board.id)}
+              className="text-body"
+              style={{
+                marginTop: tokens.spacing.sm,
+                padding: tokens.spacing.sm,
+                borderRadius: tokens.radius.sm,
+                backgroundColor: isSelected
+                  ? colors.interaction.purpleBg
+                  : "#fff",
+                color: colors.text.primary,
+                border: isSelected
+                  ? `1px solid ${colors.interaction.purple}`
+                  : "none",
+                textAlign: "left",
+                cursor: "pointer",
+              }}
+            >
+              {board.title}
+            </button>
+          );
+        })
       )}
     </div>
   );
