@@ -34,12 +34,17 @@ export default function Board({ boardId }: BoardProps) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
 
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleInput, setTitleInput] = useState("");
+
+  // Build 5x5 grid
   const gridSize = 25;
   const tasksByPosition = Array(gridSize).fill(null);
   tasks.forEach((task) => {
     tasksByPosition[task.position] = task;
   });
 
+  // Fetch board
   const fetchBoard = async () => {
     try {
       const res = await axios.get(`http://localhost:4000/boards/${boardId}`);
@@ -49,6 +54,7 @@ export default function Board({ boardId }: BoardProps) {
     }
   };
 
+  // Fetch tasks
   const fetchTasks = async () => {
     const res = await axios.get(
       `http://localhost:4000/boards/${boardId}/tasks`,
@@ -129,25 +135,62 @@ export default function Board({ boardId }: BoardProps) {
     }
   };
 
+  // Update board title
+  const updateBoardTitle = async () => {
+    if (!titleInput.trim() || !board) return;
+
+    try {
+      const res = await axios.patch(`http://localhost:4000/boards/${boardId}`, {
+        title: titleInput,
+      });
+
+      setBoard(res.data);
+    } catch (err) {
+      console.error("Error updating board title:", err);
+    } finally {
+      setEditingTitle(false);
+    }
+  };
+
   useEffect(() => {
     if (!boardId) return;
     fetchBoard();
     fetchTasks();
   }, [boardId]);
 
+  useEffect(() => {
+    if (board) setTitleInput(board.title);
+  }, [board]);
+
   if (!board) return <p>Loading board...</p>;
 
   return (
     <div>
-      <h2
-        className="text-heading"
-        style={{
-          marginTop: tokens.spacing.sm,
-          marginBottom: "0",
-        }}
-      >
-        {board.title}
-      </h2>
+      {editingTitle ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            updateBoardTitle();
+            setEditingTitle(false);
+          }}
+        >
+          <input
+            value={titleInput}
+            onChange={(e) => setTitleInput(e.target.value)}
+            autoFocus
+            onBlur={() => {
+              updateBoardTitle();
+              setEditingTitle(false);
+            }}
+            style={{
+              fontSize: 24,
+              fontWeight: 600,
+            }}
+          />
+        </form>
+      ) : (
+        <h2 onClick={() => setEditingTitle(true)}>{board.title}</h2>
+      )}
       <p
         className="text-caption"
         style={{

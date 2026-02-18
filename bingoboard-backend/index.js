@@ -88,7 +88,27 @@ app.patch("/tasks/:id", async (req, res) => {
 
   if (error) return res.status(500).json({ error });
 
-  console.log("UPDATED TASK:", data); 
+  console.log("UPDATED TASK:", data);
+  res.json(data);
+});
+
+// Update board - title
+app.patch("/boards/:id", async (req, res) => {
+  console.log("PATCH BOARD", req.params.id);
+  console.log("BODY:", req.body);
+
+  const { id } = req.params;
+
+  const { data, error } = await supabase
+    .from("boards")
+    .update(req.body)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error });
+
+  console.log("UPDATED BOARD:", data);
   res.json(data);
 });
 
